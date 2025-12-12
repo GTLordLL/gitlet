@@ -1,0 +1,37 @@
+# Build artifacts
+/build/
+/bin/
+*.o
+*.out
+*.exe
+*.so
+*.a
+*.lo
+
+# Build directories
+/build/
+
+# VSCode settings
+.vscode/
+
+# Editor temporary files
+*~
+*.swp
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+
+# Logs
+*.log
+
+# Test binaries
+*.bin
+
+# CTags
+tags
+
+# Keep project metadata
+!.github/
