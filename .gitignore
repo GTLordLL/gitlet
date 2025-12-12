@@ -1,37 +1,24 @@
 # Build artifacts
-/build/
-/bin/
+build/
+bin/
+
+# Object files and binaries
 *.o
+*.obj
 *.out
 *.exe
-*.so
-*.a
-*.lo
 
-# Build directories
-/build/
-
-# VSCode settings
+# Editor and OS files
 .vscode/
-
-# Editor temporary files
-*~
+.DS_Store
 *.swp
 
-# macOS
-.DS_Store
-
-# IDE
-.idea/
-
-# Logs
+# Logs and temporary
 *.log
-
-# Test binaries
-*.bin
-
-# CTags
 tags
+ctags
 
-# Keep project metadata
-!.github/
+# Ignore any generated coverage or temp files
+coverage/
+*.gcda
+*.gcno
