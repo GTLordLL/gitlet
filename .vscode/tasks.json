@@ -1,0 +1,18 @@
+// CTRL+SHIFT+B构建项目
+{
+    "version": "2.0.0",
+    "tasks": [
+        { // 自定义任务
+            "label": "使用make构建",
+            "type": "shell",
+            "command": "make",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
