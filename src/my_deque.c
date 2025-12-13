@@ -118,7 +118,7 @@ void resize_arrayDeque(arrayDeque* deque, unsigned int new_capacity){
 
 void addFirst_arrayDeque(arrayDeque* deque,int value){
     if (deque->curSize >= deque->maxCapacity){
-        resize(deque,deque->maxCapacity * 2);
+        resize_arrayDeque(deque,deque->maxCapacity * 2);
     }
     
     deque->data[deque->headIndex] = value;
@@ -128,7 +128,7 @@ void addFirst_arrayDeque(arrayDeque* deque,int value){
 
 void addLast_arrayDeque(arrayDeque* deque,int value){
     if (deque->curSize >= deque->maxCapacity){
-        resize(deque,deque->maxCapacity * 2);
+        resize_arrayDeque(deque,deque->maxCapacity * 2);
     }
 
     deque->data[deque->tailIndex] = value;
@@ -151,7 +151,7 @@ int removeFirst_arrayDeque(arrayDeque* deque){
     deque->curSize--;
 
     if ((deque->maxCapacity >= 16) && (deque->curSize < (deque->maxCapacity / 4))){
-        resize(deque,deque->maxCapacity / 2);
+        resize_arrayDeque(deque,deque->maxCapacity / 2);
     }
     return value;
 }
@@ -171,7 +171,7 @@ int removeLast_arrayDeque(arrayDeque* deque){
     deque->curSize--;
 
     if ((deque->maxCapacity >= 16) && (deque->curSize < (deque->maxCapacity / 4))){
-        resize(deque,deque->maxCapacity / 2);
+        resize_arrayDeque(deque,deque->maxCapacity / 2);
     }
     return value;
 }

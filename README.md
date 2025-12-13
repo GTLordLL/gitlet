@@ -72,8 +72,3 @@ git push
   git merge feature/xxx
   git push
   ```
-
-如果希望我为你添加 CI（GitHub Actions）或 `README` 里填入更详细的 API/使用示例，回复告诉我即可。
-
----
-（已将本文件提交到仓库）
