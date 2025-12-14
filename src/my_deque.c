@@ -1,5 +1,6 @@
 #include "my_deque.h"
 #include "my_DLList.h"
+#include "my_circularArray.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -54,156 +55,63 @@ void free_DLListDeque(DLListDeque* deque){
     }
 }
 
-// **********************辅助函数：处理环形索引***************************
-// 计算 index - 1 (用于 addFirst),技巧：+ capacity 再模，防止结果为负数
-unsigned int minus_one(unsigned int index, unsigned int capacity) {
-    return (index - 1 + capacity) % capacity;
-}
-
-// 计算 index + 1 (用于 addLast)
-unsigned int plus_one(unsigned int index, unsigned int capacity) {
-    return (index + 1) % capacity;
-}
-
 arrayDeque* create_arrayDeque(unsigned int initial_capacity){
     arrayDeque* deque = (arrayDeque*)malloc(sizeof(arrayDeque));
     if (deque == NULL) {
         printf("arrayDeque结构空间动态分配失败\n");
         return NULL;
     }
-    deque->data = (int*)malloc(initial_capacity * sizeof(int));
-    if (deque->data == NULL){
+    deque->storage = create_circularArray(initial_capacity);
+    if (deque->storage == NULL){
         printf("arrayDeque数据空间动态分配失败\n");
         free(deque);
         return NULL;
     }
-
-    deque->curSize = 0;
-    deque->maxCapacity = initial_capacity;
-
-    // 常用初始化策略：让 nextFirst 和 nextLast 在数组中间或者错开
-    deque->headIndex = 0;
-    deque->tailIndex = 1;
     return deque;
 }
 
-void resize_arrayDeque(arrayDeque* deque, unsigned int new_capacity){
-    unsigned int curHeadIndex,newHeadIndex;
-
-    int* new_data = (int*)malloc(sizeof(int) * new_capacity);
-    if (new_data == NULL){
-        printf("arrayDeque扩容空间失败\n");
-        return;
-    }
-
-    // 因为 headIndex 指向的是"待插入的空位"，所以要退回到有元素的位置
-    curHeadIndex = plus_one(deque->headIndex,deque->maxCapacity);
-
-    for (newHeadIndex = 0; newHeadIndex < deque->curSize; newHeadIndex++){
-        new_data[newHeadIndex] = deque->data[curHeadIndex];
-        curHeadIndex = plus_one(curHeadIndex,deque->maxCapacity);
-    }
-
-    if (deque->data){
-        free(deque->data);
-    }else{
-        printf("arrayDeque未分配内存空间，无法释放\n");
-        return;
-    }
-    deque->data = new_data;
-    deque->maxCapacity = new_capacity;
-    deque->headIndex = new_capacity - 1;
-    deque->tailIndex = deque->curSize;
-}
-
 void addFirst_arrayDeque(arrayDeque* deque,int value){
-    if (deque->curSize >= deque->maxCapacity){
-        resize_arrayDeque(deque,deque->maxCapacity * 2);
-    }
-    
-    deque->data[deque->headIndex] = value;
-    deque->headIndex = minus_one(deque->headIndex,deque->maxCapacity);
-    deque->curSize++;
+    addFirst_circularArray(deque->storage,value);
 }
 
 void addLast_arrayDeque(arrayDeque* deque,int value){
-    if (deque->curSize >= deque->maxCapacity){
-        resize_arrayDeque(deque,deque->maxCapacity * 2);
-    }
-
-    deque->data[deque->tailIndex] = value;
-    deque->tailIndex = plus_one(deque->tailIndex,deque->maxCapacity);
-    deque->curSize++;
+    addLast_circularArray(deque->storage,value);
 }
 
 int removeFirst_arrayDeque(arrayDeque* deque){
-    int value;
-    unsigned int newIndex;
-    if (deque->curSize == 0){
+    if (deque->storage->curSize == 0){
         printf("arrayDeque为空，无法删除！\n");
         return -1;
-    } 
-    
-    newIndex = plus_one(deque->headIndex,deque->maxCapacity);
-    value = deque->data[newIndex];
-
-    deque->headIndex = newIndex;
-    deque->curSize--;
-
-    if ((deque->maxCapacity >= 16) && (deque->curSize < (deque->maxCapacity / 4))){
-        resize_arrayDeque(deque,deque->maxCapacity / 2);
     }
-    return value;
+    return removeFirst_circularArray(deque->storage);
 }
 
 int removeLast_arrayDeque(arrayDeque* deque){
-    int value;
-    unsigned int newIndex;
-    if (deque->curSize == 0){
+    if (deque->storage->curSize == 0){
         printf("arrayDeque为空，无法删除！\n");
         return -1;
-    } 
-
-    newIndex = minus_one(deque->tailIndex,deque->maxCapacity);
-    value = deque->data[newIndex];
-
-    deque->tailIndex = newIndex;
-    deque->curSize--;
-
-    if ((deque->maxCapacity >= 16) && (deque->curSize < (deque->maxCapacity / 4))){
-        resize_arrayDeque(deque,deque->maxCapacity / 2);
     }
-    return value;
+    return removeLast_circularArray(deque->storage);
 }
 
-// 支持 O(1) 的随机访问
 int getValue_arrayDeque(arrayDeque* deque, unsigned int logic_index){
-    unsigned int logic_index_0,physic_index;
-    if (logic_index >= deque->curSize){
-        printf("arrayDeque索引越界！\n");
-        return -1;
-    }
-    // 逻辑索引 0 对应的物理索引是 nextFirst + 1
-    // 逻辑索引 index 对应的物理索引是 (nextFirst + 1 + index) % capacity
-    logic_index_0 = plus_one(deque->headIndex,deque->maxCapacity);
-    physic_index = (logic_index_0 + logic_index) % deque->maxCapacity;
-
-    return deque->data[physic_index];
+    return getValue_circularArray(deque->storage, logic_index);
 }
 
 void print_arrayDeque(arrayDeque* deque){
     unsigned int i;
-    printf("arrayDeque (size=%d):\n ", deque->curSize);
-    for (i = 0; i < deque->curSize; i++){
-        printf("%d\n",getValue_arrayDeque(deque,i));
+    printf("arrayDeque (size=%d):\n ", deque->storage->curSize);
+    for (i = 0; i < deque->storage->curSize; i++){
+        printf("%d\n",getValue_circularArray(deque->storage, i));
     }
 }
 
-void free_arrayDeque(arrayDeque* deque) {
-    if (deque) {
-        free(deque->data);
+void free_arrayDeque(arrayDeque* deque){
+    if (deque){
+        free_circularArray(deque->storage);
         free(deque);
-    }else {
+    } else {
         printf("arrayDeque未分配内存空间，无法释放\n");
     }
 }
+

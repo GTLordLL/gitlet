@@ -8,10 +8,10 @@
 #ifndef __MY_UNIONFINDSET_H__
 #define __MY_UNIONFINDSET_H__
 
-typedef struct my_vector my_vector;
+typedef struct Int_vector Int_vector;
 
 typedef struct DisjointSet{
-    my_vector* parent;
+    Int_vector* parent;
 }DisjointSet;
 
 DisjointSet* create_unionFindSet(unsigned int initial_capacity);

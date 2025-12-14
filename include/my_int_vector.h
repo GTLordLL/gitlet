@@ -19,24 +19,24 @@
 
 //动态数组需要连续的内存
 // *************************************************
-#ifndef __MY_VECTOR_H__
-#define __MY_VECTOR_H__
+#ifndef __MY_INT_VECTOR_H__
+#define __MY_INT_VECTOR_H__
 
 // 定义动态数组结构
-typedef struct my_vector{                     // 内存对齐会浪费空间，尽量保证大小一样
+typedef struct Int_vector{                     // 内存对齐会浪费空间，尽量保证大小一样
     unsigned int currentSize;       // 当前元素个数
     unsigned int maxCapacity;       // 当前最大容量
     int* data;                      // 指向实际存储数据的内存区域
-}my_vector;
+}Int_vector;
 
-my_vector* create_vector(unsigned int initial_capacity);
-void resize_vector(my_vector* v, unsigned int new_capacity);
-void add_last_value(my_vector* v, int value);
-int get_value(my_vector* v, unsigned int index);
-void set_value(my_vector* v, unsigned int index, int value);
-int remove_last_value(my_vector* v);
-void insert_value(my_vector* v, unsigned int index, int value);
-int delete_value(my_vector* v, unsigned int index);
-void free_vector(my_vector* v);
+Int_vector* create_intVector(unsigned int initial_capacity);
+void resize_intVector(Int_vector* v, unsigned int new_capacity);
+void add_last_intVector(Int_vector* v, int value);
+int get_value_intVector(Int_vector* v, unsigned int index);
+void set_value_intVector(Int_vector* v, unsigned int index, int value);
+int remove_last_intVector(Int_vector* v);
+void insert_value_intVector(Int_vector* v, unsigned int index, int value);
+int delete_value_intVector(Int_vector* v, unsigned int index);
+void free_intVector(Int_vector* v);
 
 #endif

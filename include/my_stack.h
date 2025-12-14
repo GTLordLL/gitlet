@@ -7,12 +7,12 @@ ADT:栈，队列                注重行为
 #define __MY_STACK_H__
 
 // 前置声明，避免循环包含
-typedef struct my_vector my_vector;
+typedef struct Int_vector Int_vector;
 typedef struct DLList DLList;
 
 // 基于动态数组的栈结构
 typedef struct arrayStack{
-    my_vector* storage;
+    Int_vector* storage;
 }arrayStack;
 
 // 基于双向链表的栈结构

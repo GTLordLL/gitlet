@@ -3,6 +3,8 @@
 #define __MY_DEQUE_H__
 
 typedef struct DLList DLList;
+typedef struct circularArray circularArray;
+
 
 // 基于双向链表的 Deque
 typedef struct DLListDeque {
@@ -11,11 +13,7 @@ typedef struct DLListDeque {
 
 // 基于循环数组的 Deque
 typedef struct arrayDeque{
-    int* data;
-    unsigned int curSize;
-    unsigned int maxCapacity;
-    unsigned int headIndex;         // 游标：头部插入位置
-    unsigned int tailIndex;         // 游标：尾部插入位置
+    circularArray* storage;
 }arrayDeque;
 
 
@@ -28,7 +26,6 @@ int removeLast_DLListDeque(DLListDeque* deque);
 void free_DLListDeque(DLListDeque* deque);
 
 arrayDeque* create_arrayDeque(unsigned int initial_capacity);
-void resize_arrayDeque(arrayDeque* deque, unsigned int new_capacity);
 void addFirst_arrayDeque(arrayDeque* deque,int value);
 void addLast_arrayDeque(arrayDeque* deque,int value);
 int removeFirst_arrayDeque(arrayDeque* deque);

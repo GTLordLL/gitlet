@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "my_unionFindSet.h"
-#include "my_vector.h"
+#include "my_int_vector.h"
 
 DisjointSet* create_unionFindSet(unsigned int initial_capacity){
     unsigned int index;
@@ -11,7 +11,7 @@ DisjointSet* create_unionFindSet(unsigned int initial_capacity){
         return NULL;
     }
 
-    set->parent = create_vector(initial_capacity);
+    set->parent = create_intVector(initial_capacity);
     if (set->parent == NULL){
         printf("DisjointSet数据空间动态分配失败\n");
         free(set);
@@ -96,7 +96,7 @@ void print_DisjointSet(DisjointSet* set){
 
 void free_DisjointSet(DisjointSet* set){
     if (set){
-        free_vector(set->parent);
+        free_intVector(set->parent);
         free(set);   
     }else{
         printf("DisjointSet未分配内存空间，无法释放\n");
