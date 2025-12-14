@@ -10,7 +10,7 @@
 #define MAX_LOAD_FACTOR     0.75        // 装载因子
 
 typedef struct DLList DLList;
-typedef struct Node Node;
+typedef struct DLListNode DLListNode;
 
 
 typedef struct HashMap{
@@ -21,7 +21,7 @@ typedef struct HashMap{
 }HashMap;
 
 unsigned int hash_function(int key,unsigned int capacity);
-Node* find_node(HashMap* map, int key);
+DLListNode* find_node(HashMap* map, int key);
 HashMap* create_hashmap(unsigned int initial_capacity);
 void resize_map(HashMap* map,unsigned int new_capacity);
 int get_value_HashMap(HashMap* map,int key);

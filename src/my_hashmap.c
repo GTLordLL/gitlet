@@ -9,15 +9,15 @@ unsigned int hash_function(int key,unsigned int capacity){
     return (unsigned int)abs(key) % capacity;
 }
 
-// 查找指定 Key 的节点，返回 Node*，找不到返回 NULL
-Node* find_node(HashMap* map, int key){
+// 查找指定 Key 的节点，返回 DLListNode*，找不到返回 NULL
+DLListNode* find_node(HashMap* map, int key){
     unsigned int index;
     DLList* bucket;
     index = hash_function(key,map->maxCapacity);
     bucket = map->buckets[index];
     // 遍历桶中的链表
     // 遍历从哨兵的下一个节点 (head) 开始
-    Node* current = bucket->sentinel->next;
+    DLListNode* current = bucket->sentinel->next;
     
     // 只要 current 不是哨兵（即未回到起点），就继续查找
     while (current != bucket->sentinel) {
@@ -59,8 +59,8 @@ void resize_map(HashMap* map,unsigned int new_capacity){
     DLList** old_buckets;
     DLList* bucket;
     unsigned int old_capacity,i;
-    Node* current_node;
-    Node* next_node;
+    DLListNode* current_node;
+    DLListNode* next_node;
 
     old_buckets = map->buckets;
     old_capacity = map->maxCapacity;
@@ -91,9 +91,9 @@ void resize_map(HashMap* map,unsigned int new_capacity){
 }
 
 int get_value_HashMap(HashMap* map,int key){
-    Node* node = find_node(map,key);
-    if (node){
-        return node->data2;
+    DLListNode* DLListNode = find_node(map,key);
+    if (DLListNode){
+        return DLListNode->data2;
     }else{
         printf("未找到键值对\n");
         return -1;
@@ -101,7 +101,7 @@ int get_value_HashMap(HashMap* map,int key){
 }
 
 void put_kvPair(HashMap* map,int key,int value){
-    Node* node;
+    DLListNode* DLListNode;
     unsigned int index;
     DLList* bucket;
 
@@ -110,10 +110,10 @@ void put_kvPair(HashMap* map,int key,int value){
         resize_map(map, map->maxCapacity * 2);
     }
 
-    node = find_node(map,key);
+    DLListNode = find_node(map,key);
     // 3. Key 存在：更新 Value
-    if (node){
-        node->data2 = value;
+    if (DLListNode){
+        DLListNode->data2 = value;
     }
     // 4. Key 不存在：插入新
     else{

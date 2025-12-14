@@ -11,16 +11,16 @@ Circular Sentinel (环形哨兵) 拓扑结构
 #define __MY_DLLIST_H__
 
 // 定义节点结构体
-typedef struct Node{
-    struct Node* prev;      // 前驱指针
-    int data1;              // 数据
+typedef struct DLListNode{
+    struct DLListNode* prev;      // 前驱指针
+    int data1;                    // 数据
     int data2;
-    struct Node* next;      // 后继指针
-}Node;
+    struct DLListNode* next;      // 后继指针
+}DLListNode;
 
 // 定义链表壳子 (Wrapper)
 typedef struct DLList{
-    Node* sentinel;         // 唯一的哨兵节点
+    DLListNode* sentinel;         // 唯一的哨兵节点
     unsigned int curSize;
 }DLList;
 

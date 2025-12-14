@@ -42,7 +42,7 @@ void print_graph(my_graph* g){
         
         // 遍历链表
         DLList* list = g->adjList[v];
-        Node* curr = list->sentinel->next;
+        DLListNode* curr = list->sentinel->next;
         
         while (curr != list->sentinel) {
             // data1 是邻居 ID
@@ -83,7 +83,7 @@ void breadth_first_search(my_graph* graph,unsigned short start_vertex){
 
         // 遍历 current_vertex 的邻居
         DLList* neighbors = graph->adjList[current_vertex];
-        Node* curr = neighbors->sentinel->next;
+        DLListNode* curr = neighbors->sentinel->next;
 
         while (curr != neighbors->sentinel){
             unsigned short neighbor_vertex = curr->data1;
@@ -106,7 +106,7 @@ void DFS_recursive(my_graph* graph, unsigned short vertex,unsigned short* visite
 
     // 2. 递归访问所有未访问的邻居
     DLList* neighbors = graph->adjList[vertex];
-    Node* curr = neighbors->sentinel->next;
+    DLListNode* curr = neighbors->sentinel->next;
 
     while (curr != neighbors->sentinel){
         unsigned short neighbor_vertex = curr->data1; // 获取邻居顶点索引

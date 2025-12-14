@@ -10,7 +10,7 @@ DLList* create_dllist(void){
         return NULL;
     }
 
-    list->sentinel = (Node*)malloc(sizeof(Node));
+    list->sentinel = (DLListNode*)malloc(sizeof(DLListNode));
     if (list->sentinel == NULL){
         printf("Node数据空间动态分配失败\n");
         free(list);
@@ -26,12 +26,12 @@ DLList* create_dllist(void){
 
 // 头插法
 void add_head(DLList* list, int data1,int data2){
-    Node* newNode = (Node*)malloc(sizeof(Node));
+    DLListNode* newNode = (DLListNode*)malloc(sizeof(DLListNode));
     newNode->data1 = data1;
     newNode->data2 = data2;
 
     // list->sentinel->next永远指向头节点
-    Node* headNode = list->sentinel->next;
+    DLListNode* headNode = list->sentinel->next;
 
     // 将新节点与原来的头节点连接
     newNode->next = headNode;
@@ -46,12 +46,12 @@ void add_head(DLList* list, int data1,int data2){
 
 // 尾插法
 void add_tail(DLList* list, int data1,int data2){
-    Node* newNode = (Node*)malloc(sizeof(Node));
+    DLListNode* newNode = (DLListNode*)malloc(sizeof(DLListNode));
     newNode->data1 = data1;
     newNode->data2 = data2;
 
     // list->sentinel->prev永远指向尾节点
-    Node* tailNode = list->sentinel->prev;
+    DLListNode* tailNode = list->sentinel->prev;
 
     // 将新节点与原来的尾节点连接
     newNode->prev = tailNode;
@@ -73,7 +73,7 @@ int remove_head(DLList* list){
     }
 
     // list->sentinel->next永远指向头节点
-    Node* headNode = list->sentinel->next;
+    DLListNode* headNode = list->sentinel->next;
     value = headNode->data1;
     
     list->sentinel->next = headNode->next;
@@ -94,7 +94,7 @@ int remove_tail(DLList* list){
     }
 
     // list->sentinel->prev永远指向尾节点
-    Node* tailNode = list->sentinel->prev;
+    DLListNode* tailNode = list->sentinel->prev;
     value = tailNode->data1;
 
     list->sentinel->prev = tailNode->prev;
@@ -108,7 +108,7 @@ int remove_tail(DLList* list){
 
 // 遍历所有节点
 void print_dllist(DLList* list){
-    Node* headNode = list->sentinel->next;
+    DLListNode* headNode = list->sentinel->next;
 
     while (headNode != list->sentinel){
         printf("%d\n",headNode->data1);
@@ -119,8 +119,8 @@ void print_dllist(DLList* list){
 
 // 释放
 void free_dllist(DLList* list){
-    Node* headNode;
-    Node* temp;
+    DLListNode* headNode;
+    DLListNode* temp;
     if (list){
         headNode = list->sentinel->next;
         while (headNode != list->sentinel){
