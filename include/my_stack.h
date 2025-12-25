@@ -7,12 +7,12 @@ ADT:栈，队列                注重行为
 #define __MY_STACK_H__
 
 // 前置声明，避免循环包含
-typedef struct Int_vector Int_vector;
+typedef struct GenericAList GenericAList;
 typedef struct DLList DLList;
 
 // 基于动态数组的栈结构
 typedef struct arrayStack{
-    Int_vector* storage;
+    GenericAList* storage;
 }arrayStack;
 
 // 基于双向链表的栈结构
@@ -20,9 +20,9 @@ typedef struct DLListStack{
     DLList* storage;
 } DLListStack;
 
-arrayStack* create_arrayStack(unsigned int initial_capacity);
-void push_arrayStack(arrayStack* stack, int value);
-int pop_arrayStack(arrayStack* stack);
+arrayStack* create_arrayStack(unsigned int initial_capacity,unsigned int elementSize);
+void push_arrayStack(arrayStack* stack, void* element);
+void pop_arrayStack(arrayStack* stack,void* out_element);
 void free_arrayStack(arrayStack* stack);
 DLListStack* create_DLListStack(void);
 void push_DLListStack(DLListStack* stack, int value);

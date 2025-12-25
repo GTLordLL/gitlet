@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "my_unionFindSet.h"
-#include "my_int_vector.h"
+#include "my_generic_AList.h"
 
 DisjointSet* create_unionFindSet(unsigned int initial_capacity){
     unsigned int index;
@@ -11,19 +11,19 @@ DisjointSet* create_unionFindSet(unsigned int initial_capacity){
         return NULL;
     }
 
-    set->parent = create_intVector(initial_capacity);
+    set->parent = create_GenericAList(initial_capacity,sizeof(int));
     if (set->parent == NULL){
         printf("DisjointSet数据空间动态分配失败\n");
         free(set);
         return NULL;
     }
 
-    set->parent->currentSize = initial_capacity;        // 作为连通分量
-
     // 初始化：每个元素自成一个集合，大小为 1 (用 -1 表示)
+    int value = -1;
     for (index = 0; index < initial_capacity; index++){
-        set->parent->data[index] = -1;
+        add_last_GenericAList(set->parent,&value);
     }
+    set->connected_component = initial_capacity;
     return set;
 }
 
@@ -36,59 +36,64 @@ unsigned int find_root(DisjointSet* set,unsigned int element){
     }
     
     // 如果 parent[p] < 0，说明 p 是根节点 (因为它存的是集合大小的负值)
-    if (set->parent->data[element] < 0){
+    int value;
+    get_element_GenericAList(set->parent,element,&value);
+    if (value < 0){
         return element;
     }
     // set->parent->data[element]存储元素 element 的父节点的索引
     // 路径压缩。将 parent[p] 直接指向递归找到的根节点
-    set->parent->data[element] = find_root(set,set->parent->data[element]);
-    return set->parent->data[element];
+    unsigned int index = find_root(set,(unsigned int)value);
+    set_element_GenericAList(set->parent,element,&index);
+    return index;
 }
 
 // 合并 p 和 q 所在的集合
 // 带权合并 (Weighted Union)：总是将小树的根节点指向大树的根节点，防止树结构过高。
 void union_sets(DisjointSet* set,unsigned int p,unsigned int q){
-    unsigned int rootP,rootQ,sizeP,sizeQ;
-    rootP = find_root(set,p);
-    rootQ = find_root(set,q);
+    int sizeP,sizeQ;
+    unsigned int rootP = find_root(set,p);
+    unsigned int rootQ = find_root(set,q);
 
     // 如果根节点相同，说明它们已经在同一个集合中，无需操作
-    if (rootP == rootQ) {
-        return;
-    }
+    if (rootP == rootQ) return;
+    
     // 获取两个集合的大小 (负值的绝对值)
-    sizeP = -set->parent->data[rootP];
-    sizeQ = -set->parent->data[rootQ];
-
+    get_element_GenericAList(set->parent,rootP,&sizeP);
+    get_element_GenericAList(set->parent,rootQ,&sizeQ);
+    int newSize = sizeP + sizeQ;
     // 加权合并：总是将小树 (小尺寸) 连接到大树 (大尺寸) 上
     if (sizeP < sizeQ){
         // P 连到 Q：将 P 的根节点指向 Q 的根节点
-        set->parent->data[rootP] = rootQ;
+        set_element_GenericAList(set->parent,rootQ,&rootP);
         // 更新 Q 的根节点的大小：合并后的大小 = 原有大小 + P 的大小
-        set->parent->data[rootQ] -= sizeP;
+        set_element_GenericAList(set->parent,rootP,&newSize);
     }else{
-        set->parent->data[rootQ] = rootP;
-        set->parent->data[rootP] -= sizeQ;
+        set_element_GenericAList(set->parent,rootP,&rootQ);
+        set_element_GenericAList(set->parent,rootQ,&newSize);
     }
     // 连通分量的数量减 1
-    set->parent->currentSize--;
+    set->connected_component--;
 }
 
-unsigned char is_connected(DisjointSet* set,unsigned int p,unsigned int q){
+char is_connected(DisjointSet* set,unsigned int p,unsigned int q){
     return find_root(set,p) == find_root(set,q);
 }
 
 unsigned int get_set_size(DisjointSet* set,unsigned int element){
-    unsigned int root;
-    root = find_root(set,element);
-    return -set->parent->data[root];
+    unsigned int root = find_root(set,element);
+    int value;
+    get_element_GenericAList(set->parent,root,&value);
+    return -value;
 }
 
 void print_DisjointSet(DisjointSet* set){
     unsigned int i;
+    int value;
     printf("Parent Array: [");
     for (i = 0; i < set->parent->maxCapacity; i++) {
-        printf("%d%s", set->parent->data[i], (i == set->parent->maxCapacity - 1) ? "" : ", ");
+        get_element_GenericAList(set->parent,i,&value);
+        printf("%d%s", value, (i == set->parent->maxCapacity - 1) ? "" : ", ");
     }
     printf("]\n");
     printf("Total elements: %d, Number of Sets: %d\n", set->parent->maxCapacity, set->parent->currentSize);
@@ -96,7 +101,7 @@ void print_DisjointSet(DisjointSet* set){
 
 void free_DisjointSet(DisjointSet* set){
     if (set){
-        free_intVector(set->parent);
+        free_GenericAList(set->parent);
         free(set);   
     }else{
         printf("DisjointSet未分配内存空间，无法释放\n");

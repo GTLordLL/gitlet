@@ -1,18 +1,18 @@
 #include "my_DLList.h"
-#include "my_int_vector.h"
+#include "my_generic_AList.h"
 #include "my_stack.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 
-arrayStack* create_arrayStack(unsigned int initial_capacity){
+arrayStack* create_arrayStack(unsigned int initial_capacity,unsigned int elementSize){
     arrayStack* stack = (arrayStack*)malloc(sizeof(arrayStack));
     if (stack == NULL){
         printf("arrayStack结构空间动态分配失败\n");
         return NULL;
     }
 
-    stack->storage = create_intVector(initial_capacity);
+    stack->storage = create_GenericAList(initial_capacity,elementSize);
     if (stack->storage == NULL){
         printf("arrayStack数据空间动态分配失败\n");
         free(stack);
@@ -22,21 +22,22 @@ arrayStack* create_arrayStack(unsigned int initial_capacity){
     return stack;
 }
 
-void push_arrayStack(arrayStack* stack, int value){
-    add_last_intVector(stack->storage, value);
+void push_arrayStack(arrayStack* stack, void* element){
+    add_last_GenericAList(stack->storage,element);
 }
 
-int pop_arrayStack(arrayStack* stack){
+void pop_arrayStack(arrayStack* stack,void* out_element){
     if (stack->storage->currentSize == 0){
         printf("arrayStack为空，无法删除！\n");
-        return -1;
+        return;
     }
-    return remove_last_intVector(stack->storage);
+    get_element_GenericAList(stack->storage,stack->storage->currentSize - 1,out_element);
+    remove_last_GenericAList(stack->storage);
 }
 
 void free_arrayStack(arrayStack* stack){
     if (stack){
-        free_intVector(stack->storage);
+        free_GenericAList(stack->storage);
         free(stack);
     }else {
         printf("arrayStack未分配内存空间，无法释放\n");
