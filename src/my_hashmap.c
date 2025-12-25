@@ -10,11 +10,9 @@ unsigned int hash_function(int key,unsigned int capacity){
 }
 
 // 查找指定 Key 的节点，返回 DLListNode*，找不到返回 NULL
-DLListNode* find_node(HashMap* map, int key){
-    unsigned int index;
-    DLList* bucket;
-    index = hash_function(key,map->maxCapacity);
-    bucket = map->buckets[index];
+DLListNode* find_kvPair(HashMap* map, int key){
+    unsigned int index = hash_function(key,map->maxCapacity);
+    DLList* bucket = map->buckets[index];
     // 遍历桶中的链表
     // 遍历从哨兵的下一个节点 (head) 开始
     DLListNode* current = bucket->sentinel->next;
@@ -91,9 +89,9 @@ void resize_map(HashMap* map,unsigned int new_capacity){
 }
 
 int get_value_HashMap(HashMap* map,int key){
-    DLListNode* DLListNode = find_node(map,key);
-    if (DLListNode){
-        return DLListNode->data2;
+    DLListNode* kvPair = find_kvPair(map,key);
+    if (kvPair){
+        return kvPair->data2;
     }else{
         printf("未找到键值对\n");
         return -1;
@@ -101,26 +99,35 @@ int get_value_HashMap(HashMap* map,int key){
 }
 
 void put_kvPair(HashMap* map,int key,int value){
-    DLListNode* DLListNode;
-    unsigned int index;
-    DLList* bucket;
-
     // 1. 检查是否需要扩容
     if ((float)map->curSize / map->maxCapacity > MAX_LOAD_FACTOR) {
         resize_map(map, map->maxCapacity * 2);
     }
 
-    DLListNode = find_node(map,key);
+    DLListNode* kvPair = find_kvPair(map,key);
     // 3. Key 存在：更新 Value
-    if (DLListNode){
-        DLListNode->data2 = value;
+    if (kvPair){
+        kvPair->data2 = value;
     }
     // 4. Key 不存在：插入新
     else{
-        index = hash_function(key,map->maxCapacity);
-        bucket = map->buckets[index];
+        unsigned int index = hash_function(key,map->maxCapacity);
+        DLList* bucket = map->buckets[index];
         add_tail(bucket,key,value);
         map->curSize++;
+    }
+}
+
+void remove_kvPair(HashMap* map,int key){
+    DLListNode* kvPair = find_kvPair(map,key);
+    if (kvPair){
+        unsigned int index = hash_function(key,map->maxCapacity);
+        DLList* bucket = map->buckets[index];
+        remove_node(bucket,kvPair);
+        map->curSize--;
+    }
+    if ((map->curSize > 0) && (map->curSize <= map->maxCapacity / 4)){
+        resize_map(map,map->maxCapacity / 2);
     }
 }
 

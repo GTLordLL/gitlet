@@ -36,7 +36,7 @@ void resize_GenericAList(GenericAList* list, unsigned int new_capacity){
     void* new_data = realloc(list->data, new_capacity * list->elementSize);
     if (new_data == NULL){
         printf("GenericAList扩容空间动态分配失败\n");
-        return;
+        exit(EXIT_FAILURE);
     }
     
     list->data = new_data;
@@ -80,7 +80,7 @@ void remove_last_GenericAList(GenericAList* list) {
     list->currentSize--;
 
     // 缩容逻辑：如果利用率小于 1/4，且容量还比较大
-    if ((list->currentSize > 0) && (list->currentSize == (list->maxCapacity / 4))) {
+    if ((list->currentSize > 0) && (list->currentSize <= (list->maxCapacity / 4))) {
         resize_GenericAList(list, list->maxCapacity / 2);
     }
 }

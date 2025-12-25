@@ -106,6 +106,25 @@ int remove_tail(DLList* list){
     return value;
 }
 
+// 删除任意节点
+int remove_node(DLList* list, DLListNode* node){
+    int value;
+    if (list->curSize == 0){
+        printf("DLList链表为空，无法删除\n");
+        return -1;
+    }
+
+    value = node->data1;
+
+    node->prev->next = node->next;
+    node->next->prev = node->prev;
+
+    free(node);
+    list->curSize--;
+
+    return value;
+}
+
 // 遍历所有节点
 void print_dllist(DLList* list){
     DLListNode* headNode = list->sentinel->next;

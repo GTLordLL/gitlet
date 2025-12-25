@@ -29,6 +29,7 @@ void add_head(DLList* list, int data1,int data2);
 void add_tail(DLList* list, int data1,int data2);
 int remove_head(DLList* list);
 int remove_tail(DLList* list);
+int remove_node(DLList* list, DLListNode* node);
 void print_dllist(DLList* list);
 void free_dllist(DLList* list);
 

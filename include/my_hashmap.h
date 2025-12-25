@@ -21,11 +21,12 @@ typedef struct HashMap{
 }HashMap;
 
 unsigned int hash_function(int key,unsigned int capacity);
-DLListNode* find_node(HashMap* map, int key);
+DLListNode* find_kvPair(HashMap* map, int key);
 HashMap* create_hashmap(unsigned int initial_capacity);
 void resize_map(HashMap* map,unsigned int new_capacity);
 int get_value_HashMap(HashMap* map,int key);
 void put_kvPair(HashMap* map,int key,int value);
+void remove_kvPair(HashMap* map,int key);
 void free_hashmap(HashMap* map);
 
 #endif

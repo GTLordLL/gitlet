@@ -1,5 +1,5 @@
-#ifndef __MY_CIRCULARLIST_H__
-#define __MY_CIRCULARLIST_H__
+#ifndef __MY_GENERIC_ALIST_H__
+#define __MY_GENERIC_ALIST_H__
 
 typedef struct GenericAList{
     void* data;               // 泛型数据指针,指向实际存储数据的内存区域
