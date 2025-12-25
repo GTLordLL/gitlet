@@ -34,7 +34,7 @@ void swap_node(MinBinaryHeap* heap, unsigned int i, unsigned int j){
     put_kvPair(heap->indexMap,i_node.vertex,j);
 }
 
-// 上浮：将新插入的节点移动到正确的位置 (O(log N))
+// 上浮：将新插入的节点移动到正确的位置 (O(log N))，满足小顶堆属性
 void bubble_up(MinBinaryHeap* heap,unsigned int curIndex){
     PQNode cur_node,parent_node;
 
@@ -53,7 +53,7 @@ void bubble_up(MinBinaryHeap* heap,unsigned int curIndex){
     }
 }
 
-// 下沉：将堆顶元素移动到正确的位置 (O(log N))
+// 下沉：将堆顶元素移动到正确的位置 (O(log N))，满足小顶堆属性
 void bubble_down(MinBinaryHeap* heap,unsigned int curIndex){
     unsigned int curSize = heap->storage->currentSize;
     PQNode child_node,cur_node;
@@ -106,6 +106,7 @@ MinBinaryHeap* create_MinBinaryHeap(unsigned int initial_capacity){
     heap->indexMap = create_hashmap(initial_capacity);
     if (!heap->indexMap){
         printf("hashmap内存分配失败\n");
+        free_GenericAList(heap->storage);
         free(heap);
         return NULL;
     }

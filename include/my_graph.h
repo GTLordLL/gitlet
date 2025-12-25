@@ -10,6 +10,7 @@ typedef struct DLList DLList;
 
 typedef struct my_graph{
     DLList** adjList;       // 邻接表数组：adj[i] 是一个链表，存着 i 的所有邻居
+                            // data1存邻居索引，data2存边的权重
     unsigned int edges;     // 边的数量 (Edges)
     int isDirected;         // 0: 无向图, 1: 有向图
     unsigned short vertices;  // 顶点的数量 (Vertices)

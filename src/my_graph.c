@@ -7,11 +7,21 @@
 my_graph* create_graph(unsigned short vertices,int isDirected){
     unsigned short i;
     my_graph* graph = (my_graph*)malloc(sizeof(my_graph));
+    if (!graph){
+        printf("my_graph结构内存分配失败\n");
+        return NULL;
+    }
+    
     graph->vertices = vertices;
     graph->edges = 0;
     graph->isDirected = isDirected;
 
     graph->adjList = (DLList**)malloc(vertices * sizeof(DLList*));
+    if (!graph->adjList){
+        free(graph);
+        printf("adjList内存分配失败\n");
+        return NULL;
+    }
 
     for (i = 0; i < vertices; i++){
         graph->adjList[i] = create_dllist();
