@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "dijkstra.h"
+#include "my_dijkstra.h"
 #include "my_priorityQueue.h"
 #include "my_DLList.h"
 #include "my_hashmap.h"

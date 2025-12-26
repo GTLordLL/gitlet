@@ -1,44 +1,60 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "my_graph.h"
-#include "dijkstra.h"
+#include "my_bst.h"
 
 
 int main(void){
-    // 创建一个包含 5 个顶点的有向图 (0-4)
-    // 0: A, 1: B, 2: C, 3: D, 4: E
-    my_graph* g = create_graph(5, 1); // 1 = 有向图
+    BinarySearchTree* myTree = create_BST();
+    if (!myTree) return 1;
 
-    printf("--- 构建图 (带权重) ---\n");
-    // 构建一个经典的测试用例
-    add_edge(g, 0, 1, 10); // A -> B (10)
-    add_edge(g, 0, 4, 5);  // A -> E (5)
-    add_edge(g, 1, 2, 1);  // B -> C (1)
-    add_edge(g, 1, 4, 2);  // B -> E (2)
-    add_edge(g, 2, 3, 4);  // C -> D (4)
-    add_edge(g, 4, 1, 3);  // E -> B (3) - 关键边：会让 A->E->B (5+3=8) 比 A->B (10) 更短
-    add_edge(g, 4, 2, 9);  // E -> C (9)
-    add_edge(g, 4, 3, 2);  // E -> D (2) - 关键边：会让 A->E->D (5+2=7) 最短
+    printf("--- 1. 插入测试 ---\n");
+    insert_bst(myTree, 50, 500);
+    insert_bst(myTree, 30, 300);
+    insert_bst(myTree, 70, 700);
+    insert_bst(myTree, 20, 200);
+    insert_bst(myTree, 40, 400);
+    insert_bst(myTree, 60, 600);
+    insert_bst(myTree, 80, 800);
+    
+    printf("当前节点数 (预期 7): %u\n", myTree->curSize);
+    printf("中序遍历 (预期从小到大): ");
+    print_inorderBST(myTree);
 
-    /* 图解预期路径：
-       A(0) -> E(4) : 5
-       A(0) -> E(4) -> B(1) : 5 + 3 = 8 (优于直接 A->B 的 10)
-       A(0) -> E(4) -> B(1) -> C(2) : 5 + 3 + 1 = 9
-       A(0) -> E(4) -> D(3) : 5 + 2 = 7
-    */
+    printf("\n--- 2. 更新测试 (Key 50) ---\n");
+    insert_bst(myTree, 50, 555); // 更新值
+    printf("更新后的值 [50:555]: ");
+    print_inorderBST(myTree);
+    printf("当前节点数 (预期仍为 7): %u\n", myTree->curSize);
 
-    print_graph(g);
+    printf("\n--- 3. 删除测试 ---\n");
+    // 情况 1: 删除叶子节点 (20)
+    printf("删除叶子节点 20...\n");
+    delete_bst(myTree, 20);
+    print_inorderBST(myTree);
 
-    printf("\n--- 运行 Dijkstra (起点: 0) ---\n");
-    ShortestPathResult* result = create_dijkstraResult(g, 0);
+    // 情况 2: 删除只有一个孩子的节点 (假设 30 的左孩子没了，删 30 就会剩 40)
+    printf("删除只有一个孩子的节点 (逻辑测试)...\n");
+    // 这里如果删除了 20，30 就只剩右孩子 40 了
+    delete_bst(myTree, 30);
+    print_inorderBST(myTree);
 
-    // 打印到所有点的最短路径
-    for (int i = 0; i < 5; i++) {
-        print_shortest_path(result, i);
-    }
+    // 情况 3: 删除有两个孩子的节点 (50)
+    printf("删除根节点 (有两个孩子) 50...\n");
+    delete_bst(myTree, 50);
+    print_inorderBST(myTree);
+    
+    printf("最终节点数 (预期 4): %u\n", myTree->curSize);
 
-    free_dijkstraResult(result);
-    free_graph(g);
+    printf("\n--- 4. 遍历测试 ---\n");
+    printf("前序遍历: ");
+    print_preorderBST(myTree);
+    printf("后序遍历: ");
+    print_postorderBST(myTree);
+
+    printf("\n清理内存...\n");
+    free_BST(myTree);
+    printf("测试完成。\n");
+
     
     return EXIT_SUCCESS;
 }

@@ -1,6 +1,6 @@
 // 单源最短路径算法
-#ifndef __DIJKSTRA_H__
-#define __DIJKSTRA_H__
+#ifndef __MY_DIJKSTRA_H__
+#define __MY_DIJKSTRA_H__
 
 // 定义无穷大 (用于初始化距离)
 #define INFINITY_DIST 0xFFFFFFFF // max unsigned int
