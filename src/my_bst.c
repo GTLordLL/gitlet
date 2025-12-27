@@ -28,14 +28,10 @@ BSTNode* insert_recursive(BSTNode* node,int key,int value ,char* is_new){
         *is_new = 1;
         return create_BSTNode(key,value);
     }
-    if (key < node->key){
-        node->leftChild = insert_recursive(node->leftChild,key,value,is_new);
-    }else if (key > node->key){
-        node->rightChild = insert_recursive(node->rightChild,key,value,is_new);
-    }else{
-        node->value = value; // Key已存在，更新值
-        *is_new = 0;
-    }
+    if (key < node->key) node->leftChild = insert_recursive(node->leftChild,key,value,is_new);
+    else if (key > node->key) node->rightChild = insert_recursive(node->rightChild,key,value,is_new);
+    else node->value = value; // Key已存在，更新值
+    
     return node;
 }
 

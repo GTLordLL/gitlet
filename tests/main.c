@@ -1,59 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "my_bst.h"
+#include "my_avlt.h"
+
+// 辅助函数：打印树的根节点及高度，验证平衡性
+void verify_balance(my_AVLTree* avlt) {
+    if (avlt->root) {
+        printf("当前根节点: [%d], 树总高度: %d, 节点总数: %u\n", 
+                avlt->root->key, avlt->root->height, avlt->curSize);
+    } else {
+        printf("树为空\n");
+    }
+}
 
 
 int main(void){
-    BinarySearchTree* myTree = create_BST();
-    if (!myTree) return 1;
+    my_AVLTree* avlt = create_AVLTree();
 
-    printf("--- 1. 插入测试 ---\n");
-    insert_bst(myTree, 50, 500);
-    insert_bst(myTree, 30, 300);
-    insert_bst(myTree, 70, 700);
-    insert_bst(myTree, 20, 200);
-    insert_bst(myTree, 40, 400);
-    insert_bst(myTree, 60, 600);
-    insert_bst(myTree, 80, 800);
+    printf("--- 测试 1: 顺序插入 1 到 10 ---\n");
+    // 如果是普通 BST，高度会是 10；AVL 树高度应在 4 左右
+    for (int i = 1; i <= 10; i++) {
+        insert_AVLTNode(avlt, i, i * 100);
+    }
     
-    printf("当前节点数 (预期 7): %u\n", myTree->curSize);
-    printf("中序遍历 (预期从小到大): ");
-    print_inorderBST(myTree);
+    printf("中序遍历结果: ");
+    print_inorderAVLT(avlt);
+    verify_balance(avlt);
+    printf("\n");
 
-    printf("\n--- 2. 更新测试 (Key 50) ---\n");
-    insert_bst(myTree, 50, 555); // 更新值
-    printf("更新后的值 [50:555]: ");
-    print_inorderBST(myTree);
-    printf("当前节点数 (预期仍为 7): %u\n", myTree->curSize);
-
-    printf("\n--- 3. 删除测试 ---\n");
-    // 情况 1: 删除叶子节点 (20)
-    printf("删除叶子节点 20...\n");
-    delete_bst(myTree, 20);
-    print_inorderBST(myTree);
-
-    // 情况 2: 删除只有一个孩子的节点 (假设 30 的左孩子没了，删 30 就会剩 40)
-    printf("删除只有一个孩子的节点 (逻辑测试)...\n");
-    // 这里如果删除了 20，30 就只剩右孩子 40 了
-    delete_bst(myTree, 30);
-    print_inorderBST(myTree);
-
-    // 情况 3: 删除有两个孩子的节点 (50)
-    printf("删除根节点 (有两个孩子) 50...\n");
-    delete_bst(myTree, 50);
-    print_inorderBST(myTree);
+    printf("--- 测试 2: 删除节点 ---\n");
+    // 删除根节点或其他节点，观察是否触发再平衡
+    printf("删除节点 4 (此时可能会触发旋转)...\n");
+    delete_AVLTNode(avlt, 4);
+    printf("删除节点 8...\n");
+    delete_AVLTNode(avlt, 8);
     
-    printf("最终节点数 (预期 4): %u\n", myTree->curSize);
+    printf("中序遍历结果: ");
+    print_inorderAVLT(avlt);
+    verify_balance(avlt);
+    printf("\n");
 
-    printf("\n--- 4. 遍历测试 ---\n");
-    printf("前序遍历: ");
-    print_preorderBST(myTree);
-    printf("后序遍历: ");
-    print_postorderBST(myTree);
+    printf("--- 测试 3: 覆盖更新 ---\n");
+    insert_AVLTNode(avlt, 5, 9999);
+    printf("更新 key 5 的值为 9999 后: ");
+    print_inorderAVLT(avlt);
 
-    printf("\n清理内存...\n");
-    free_BST(myTree);
-    printf("测试完成。\n");
+    free_AVLTree(avlt);
+    printf("\n测试完成，内存已释放。\n");
 
     
     return EXIT_SUCCESS;
