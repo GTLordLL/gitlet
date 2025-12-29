@@ -4,6 +4,10 @@ CC = gcc
 # 编译选项：-I 指定头文件路径, -g 开启调试信息, -Wall 开启所有警告
 CFLAGS = -I./include -g -Wall -Wextra -O0
 
+# --- 添加链接选项 ---
+# -lssl 处理 SSL/TLS 协议，-lcrypto 处理加密算法（如 SHA-1, AES 等）
+LDFLAGS = -lssl -lcrypto
+
 # 目录路径
 SRC_DIR = src
 OBJ_DIR = build
@@ -22,8 +26,8 @@ all: dir $(TARGET)
 
 # 1.链接: 将测试代码与自己写的库对象文件链接
 $(TARGET): $(OBJS) $(TEST_DIR)/main.c
-	@echo "Linking..."
-	$(CC) $(CFLAGS) $^ -o $@
+	@echo "Linking with OpenSSL..."
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "Build successful! Run ./$(TARGET) to test."
 
 # 2.编译: 将src下的.c文件编译成.o文件
@@ -37,6 +41,6 @@ dir:
 
 # 清理构建文件
 clean:
-	rm -rf $(OBJ_DIR) $(TARGET)
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
 .PHONY: all clean dir
