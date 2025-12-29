@@ -1,51 +1,58 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "my_avlt.h"
+#include "my_llrbt.h"
 
-// 辅助函数：打印树的根节点及高度，验证平衡性
-void verify_balance(my_AVLTree* avlt) {
-    if (avlt->root) {
-        printf("当前根节点: [%d], 树总高度: %d, 节点总数: %u\n", 
-                avlt->root->key, avlt->root->height, avlt->curSize);
-    } else {
-        printf("树为空\n");
-    }
+// 辅助测试：以物理结构形式打印树（旋转 90 度看）
+// R 代表该节点与父节点之间是红链接
+void print_tree_struct(LLRBTNode* node, int level) {
+    if (node == NULL) return;
+    print_tree_struct(node->rightChild, level + 1);
+    for (int i = 0; i < level; i++) printf("    ");
+    printf("%d(%s)\n", node->key, node->color == RED ? "R" : "B");
+    print_tree_struct(node->leftChild, level + 1);
 }
 
 
 int main(void){
-    my_AVLTree* avlt = create_AVLTree();
+    LLRedBlackTree* tree = create_LLRedBlackTree();
+    if (!tree) return 1;
 
-    printf("--- 测试 1: 顺序插入 1 到 10 ---\n");
-    // 如果是普通 BST，高度会是 10；AVL 树高度应在 4 左右
+    printf("=== 1. 顺序插入测试 (1 到 10) ===\n");
+    printf("顺序插入会不断触发左旋、右旋和颜色翻转以保持 2-3 树的逻辑结构。\n");
     for (int i = 1; i <= 10; i++) {
-        insert_AVLTNode(avlt, i, i * 100);
+        insert_LLRBTNode(tree, i, i * 10);
     }
+
+    printf("当前树节点总数: %u\n", tree->curSize);
+    printf("中序遍历 (应为升序): ");
+    print_inorderLLRBT(tree);
+
+    printf("\n树的物理结构 (R=红链接节点, B=普通黑节点):\n");
+    print_tree_struct(tree->root, 0);
+
+    printf("\n=== 2. 删除测试 ===\n");
+    // 删除叶子
+    printf("删除 key=1 (叶子)...\n");
+    delete_LLRBTNode(tree, 1);
     
-    printf("中序遍历结果: ");
-    print_inorderAVLT(avlt);
-    verify_balance(avlt);
-    printf("\n");
+    // 删除中间节点（触发 delete_min_recursive 和 rebalance）
+    printf("删除 key=4 (内部节点)...\n");
+    delete_LLRBTNode(tree, 4);
 
-    printf("--- 测试 2: 删除节点 ---\n");
-    // 删除根节点或其他节点，观察是否触发再平衡
-    printf("删除节点 4 (此时可能会触发旋转)...\n");
-    delete_AVLTNode(avlt, 4);
-    printf("删除节点 8...\n");
-    delete_AVLTNode(avlt, 8);
+    // 删除当前根节点
+    printf("删除 key=2 (可能导致根变换)...\n");
+    delete_LLRBTNode(tree, 2);
+
+    printf("\n删除后的中序遍历: ");
+    print_inorderLLRBT(tree);
     
-    printf("中序遍历结果: ");
-    print_inorderAVLT(avlt);
-    verify_balance(avlt);
-    printf("\n");
+    printf("当前树节点总数: %u\n", tree->curSize);
+    printf("操作后的物理结构:\n");
+    print_tree_struct(tree->root, 0);
 
-    printf("--- 测试 3: 覆盖更新 ---\n");
-    insert_AVLTNode(avlt, 5, 9999);
-    printf("更新 key 5 的值为 9999 后: ");
-    print_inorderAVLT(avlt);
-
-    free_AVLTree(avlt);
-    printf("\n测试完成，内存已释放。\n");
+    printf("\n=== 3. 释放资源 ===\n");
+    free_LLRedBlackTree(tree);
+    printf("内存已释放，测试结束。\n");
 
     
     return EXIT_SUCCESS;
