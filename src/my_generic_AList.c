@@ -36,7 +36,7 @@ void resize_GenericAList(GenericAList* list, unsigned int new_capacity){
     void* new_data = realloc(list->data, new_capacity * list->elementSize);
     if (new_data == NULL){
         printf("GenericAList扩容空间动态分配失败\n");
-        exit(EXIT_FAILURE);
+        return;
     }
     
     list->data = new_data;

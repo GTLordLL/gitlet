@@ -67,7 +67,7 @@ void resize_map(HashMap* map,unsigned int new_capacity){
     map->maxCapacity = new_capacity;
     if (!map->buckets){
         printf("DLList*数据空间动态分配失败\n");
-        exit(EXIT_FAILURE);
+        return;
     }
     // 2. 初始化新桶数组
     for (i = 0; i < map->maxCapacity; i++){

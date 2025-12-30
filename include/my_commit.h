@@ -5,6 +5,19 @@
 #ifndef __MY_COMMIT_H__
 #define __MY_COMMIT_H__
 
+typedef struct StringHashMap StringHashMap;
 
+
+typedef struct Commit{
+    char hash[41];            // 当前 Commit 的哈希
+    char parent_hash[41];     // 父 Commit 的哈希字符串，空则为全0
+    char *message;            // 提交信息
+    long timestamp;           // 时间戳
+    StringHashMap *blobs;     // 文件映射：文件名 -> Blob哈希
+}Commit;
+
+unsigned char* serialize_commit(Commit* commit,size_t* out_len);
+Commit* deserialize_commit(unsigned char* buffer);
+void save_commit_to_disk(Commit* commit);
 
 #endif

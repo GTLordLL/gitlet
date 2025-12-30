@@ -27,6 +27,10 @@ DLList* create_dllist(void){
 // 头插法
 void add_head(DLList* list, int data1,int data2){
     DLListNode* newNode = (DLListNode*)malloc(sizeof(DLListNode));
+    if (!newNode){
+        printf("DLListNode数据空间动态分配失败\n");
+        return;
+    }
     newNode->data1 = data1;
     newNode->data2 = data2;
 
@@ -47,6 +51,10 @@ void add_head(DLList* list, int data1,int data2){
 // 尾插法
 void add_tail(DLList* list, int data1,int data2){
     DLListNode* newNode = (DLListNode*)malloc(sizeof(DLListNode));
+    if (!newNode){
+        printf("DLListNode数据空间动态分配失败\n");
+        return;
+    }
     newNode->data1 = data1;
     newNode->data2 = data2;
 

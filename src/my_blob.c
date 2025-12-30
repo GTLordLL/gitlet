@@ -8,7 +8,7 @@ unsigned char* read_file(const char* file_path){
     FILE* file = fopen(file_path,"rb"); // rb以二进制只读模式打开文件
     if (!file) {
         printf("文件路径错误,或不存在,亦或无法打开\n");
-        return;
+        return NULL;
     }
     fseek(file,0,SEEK_END); // 将光标/读写指针移动到文件最末尾
     long file_size = ftell(file); // 获取当前光标位置，即文件大小(字节数)
@@ -23,7 +23,7 @@ long get_file_size(const char* file_path){
     FILE* file = fopen(file_path,"rb"); // rb以二进制只读模式打开文件
     if (!file) {
         printf("文件路径错误,或不存在,亦或无法打开\n");
-        return;
+        return -1;
     }
     fseek(file,0,SEEK_END); // 将光标/读写指针移动到文件最末尾
     long file_size = ftell(file); // 获取当前光标位置，即文件大小(字节数)
