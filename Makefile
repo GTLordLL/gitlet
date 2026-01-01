@@ -19,7 +19,7 @@ SRCS = $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
 # 最终目标: 我们要生成的测试可执行文件
-TARGET = $(BIN_DIR)/test_main
+TARGET = $(BIN_DIR)/gitlet
 
 # 默认动作
 all: dir $(TARGET)

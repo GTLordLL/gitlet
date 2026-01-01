@@ -33,7 +33,7 @@ long get_file_size(const char* file_path){
 }
 
 void write_file(const char* file_path,unsigned char* data,long file_size){
-    FILE* file = fopen(file_path,"wb"); // rb以二进制写模式打开文件
+    FILE* file = fopen(file_path,"wb"); // wb以二进制写模式打开文件
     if (!file) {
         printf("文件路径错误,或不存在,亦或无法打开\n");
         return;
