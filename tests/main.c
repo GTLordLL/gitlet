@@ -4,6 +4,7 @@
 #include "my_init.h"
 #include "my_stage.h"
 #include "my_commit.h"
+#include "my_status.h"
 
 /* 有参数版main函数
 ./gitlet commit "Initial message"
@@ -31,10 +32,11 @@ int main(int argc,char* argv[]) {
         cmd_commit(argv[2]);
     }else if (strcmp(cmd,"log") == 0){
         cmd_log();
+    }else if (strcmp(cmd,"status") == 0){
+        cmd_status();
     }else{
         printf("No command with that name exists.\n");
     }
-    
     
 
     return EXIT_SUCCESS;

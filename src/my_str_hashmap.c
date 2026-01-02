@@ -130,3 +130,36 @@ void free_str_hashmap(StringHashMap* map) {
     free(map->buckets);
     free(map);
 }
+
+// 比较函数，供 qsort 使用，qsort需要const void*类型的参数
+int compare_strings(const void* a, const void* b){
+    // a相当于外部传入的地址/数组下标
+    // (const char**)a 相当于char* a[]
+    // *(const char**)a 相当于a[0]
+    return strcmp(*(const char**)a, *(const char**)b);
+}
+
+// 打印排序后的 HashMap 的所有 Key
+void print_sorted_keys(StringHashMap* map){
+    if (map->curSize == 0) return;
+
+    char** keys = (char**)malloc(sizeof(char*) * map->curSize);
+    unsigned int count = 0;
+    unsigned int i;
+
+    for (i = 0; i < map->maxCapacity; i++){
+        StringDLLNode* curr = map->buckets[i]->sentinel->next;
+        while (curr != map->buckets[i]->sentinel){
+            keys[count++] = curr->str1;
+            curr = curr->next;
+        }
+    }
+
+    qsort(keys,count,sizeof(char*),compare_strings);
+
+    for (i = 0; i < count; i++){
+        printf("%s\n", keys[i]);
+    }
+    free(keys);
+}
+

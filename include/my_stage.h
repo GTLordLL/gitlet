@@ -14,6 +14,7 @@ Commit* get_head_commit(void);
 unsigned char* serialize_map(StringHashMap* map,unsigned char* map_buffer);
 void save_staging_area(StagingArea* stage);
 unsigned char* deserialize_map(StringHashMap* map,unsigned char* map_buffer);
+StagingArea* create_StagingArea(unsigned int capacity);
 StagingArea* read_staging_area(void);
 void free_staging_area(StagingArea* stage);
 int cmd_add(const char *filename);

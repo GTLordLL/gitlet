@@ -118,11 +118,28 @@ unsigned char* deserialize_map(StringHashMap* map,unsigned char* map_buffer){
     return map_buffer;
 }
 
+StagingArea* create_StagingArea(unsigned int capacity){
+    StagingArea* stage = (StagingArea*)malloc(sizeof(StagingArea));
+    if (!stage) return NULL;
+
+    stage->staged_files = create_StringHashMap(capacity);
+    if (!stage->staged_files){
+        free(stage);
+        return NULL;
+    }
+    stage->removed_files = create_StringHashMap(capacity);
+    if (!stage->removed_files){
+        free_str_hashmap(stage->staged_files);
+        free(stage);
+        return NULL;
+    }
+    return stage;
+}
+
 // 读取并初始化 StagingArea
 StagingArea* read_staging_area(void){
-    StagingArea* stage = (StagingArea*)malloc(sizeof(StagingArea));
-    stage->staged_files = create_StringHashMap(16);
-    stage->removed_files = create_StringHashMap(16);
+    StagingArea* stage = create_StagingArea(16);
+    if (!stage) return NULL;
 
     unsigned char* buffer = read_file(".gitlet/index");
     if (!buffer) return stage; // 如果 index 不存在，返回空的暂存区

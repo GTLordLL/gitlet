@@ -18,5 +18,6 @@ char* get_str_value(StringHashMap* map, const char* key);
 void put_str_kv(StringHashMap* map, const char* key, const char* value);
 void remove_str_kv(StringHashMap* map, const char* key);
 void free_str_hashmap(StringHashMap* map);
+void print_sorted_keys(StringHashMap* map);
 
 #endif

@@ -219,7 +219,7 @@ int cmd_commit(const char* message){
 
     // 6. 清空暂存区
     free_staging_area(stage);
-    StagingArea* empty_stage = read_staging_area();
+    StagingArea* empty_stage = create_StagingArea(16);
     save_staging_area(empty_stage);
     free_staging_area(empty_stage);
 
