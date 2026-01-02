@@ -6,15 +6,17 @@
 // 一次性将整个文件读入内存的标准做法
 unsigned char* read_file(const char* file_path){
     FILE* file = fopen(file_path,"rb"); // rb以二进制只读模式打开文件
-    if (!file) {
-        printf("文件路径错误,或不存在,亦或无法打开\n");
-        return NULL;
-    }
+    if (!file) return NULL;
     fseek(file,0,SEEK_END); // 将光标/读写指针移动到文件最末尾
     long file_size = ftell(file); // 获取当前光标位置，即文件大小(字节数)
     fseek(file,0,SEEK_SET); // 将光标/读写指针设置到文件开头，因为等下要从头开始读取
-    unsigned char* buffer = (unsigned char*)malloc(file_size); // 准备内存来接收数据
-    fread(buffer,1,file_size,file); // 开始读取磁盘文件并写入buffer内存
+
+    unsigned char* buffer = (unsigned char*)malloc(file_size + 1); // 准备内存来接收数据
+    if (buffer) {
+        fread(buffer,1,file_size,file); // 开始读取磁盘文件并写入buffer内存
+        buffer[file_size] = '\0'; // 关键：补上字符串结束符
+    }
+    
     fclose(file); // 关闭文件，释放系统资源
     return buffer;
 }

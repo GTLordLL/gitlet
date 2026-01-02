@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "my_init.h"
+#include "my_stage.h"
+#include "my_commit.h"
 
 /* 有参数版main函数
 ./gitlet commit "Initial message"
@@ -22,7 +24,11 @@ int main(int argc,char* argv[]) {
     if (strcmp(cmd,"init") == 0){
         cmd_init();
     }else if (strcmp(cmd,"add") == 0){
-        
+        cmd_add(argv[2]);
+    }else if (strcmp(cmd,"rm") == 0){
+        cmd_rm(argv[2]);
+    }else if (strcmp(cmd,"commit") == 0){
+        cmd_commit(argv[2]);
     }else{
         printf("No command with that name exists.\n");
     }

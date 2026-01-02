@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "my_commit.h"
 #include "my_str_hashmap.h"
 #include "my_str_DLList.h"
 #include "my_sha1.h"
 #include "my_blob.h"
+#include "my_stage.h"
 
 // 辅助函数：将 Commit 序列化为字节流
 unsigned char* serialize_commit(Commit* commit,size_t* out_len){
@@ -138,5 +140,129 @@ void save_commit_to_disk(Commit* commit){
 
     free(buffer);
     free(commit_hash);
+}
+
+void free_commit(Commit* commit){
+    if (commit){
+        free(commit->message);
+        free_str_hashmap(commit->blobs);
+        free(commit);
+    }
+}
+
+StringHashMap* clone_str_hashmap(StringHashMap* map){
+    StringHashMap* new_map = create_StringHashMap(map->maxCapacity);
+    unsigned int i;
+    for (i = 0; i < map->maxCapacity; i++){
+        StringDLLNode* curr = map->buckets[i]->sentinel->next;
+        while (curr != map->buckets[i]->sentinel){
+            put_str_kv(new_map,curr->str1,curr->str2);
+            curr = curr->next;
+        }
+    }
+    return new_map;
+}
+
+int cmd_commit(const char* message){
+    // 1. 校验参数：提交信息（Message）不能为空
+    if (!message || strlen(message) == 0){
+        printf("Please enter a commit message.\n");
+        return -1;
+    }
+
+    // 2. 检查变化：如果暂存区中没有任何待增加（staged）或待删除（removed）的文件，报错 No changes added to the commit.。
+    StagingArea* stage = read_staging_area();
+    if (stage->staged_files->curSize == 0 && stage->removed_files->curSize == 0){
+        printf("No changes added to the commit.\n");
+        free_staging_area(stage);
+        return -1;
+    }
+
+    // 3. 克隆父级快照：新的提交应该继承父提交（HEAD）所有的文件映射（Blob 映射）。
+    Commit* head_commit = get_head_commit();
+    Commit* new_commit = (Commit*)malloc(sizeof(Commit));
+
+    strcpy(new_commit->parent_hash,head_commit->parent_hash);
+    new_commit->message = my_strdup(message);
+    new_commit->timestamp = (long)time(NULL); // 当前时间
+    // 合并逻辑：先复制父级所有的文件，再根据暂存区增删
+    new_commit->blobs = clone_str_hashmap(head_commit->blobs);
+
+    // 4. 更新映射：
+    // 遍历暂存区的 staged_files，在新的映射中添加或更新这些文件。
+    unsigned int i;
+    for (i = 0; i < stage->staged_files->maxCapacity; i++){
+        StringDLLNode* curr = stage->staged_files->buckets[i]->sentinel->next;
+        while (curr != stage->staged_files->buckets[i]->sentinel){
+            put_str_kv(new_commit->blobs,curr->str1,curr->str2);
+            curr = curr->next;
+        }
+    }
+    // 遍历暂存区的 removed_files，在新的映射中移除这些文件。
+    for (i = 0; i < stage->removed_files->maxCapacity; i++){
+        StringDLLNode* curr = stage->removed_files->buckets[i]->sentinel->next;
+        while (curr != stage->removed_files->buckets[i]->sentinel){
+            remove_str_kv(new_commit->blobs,curr->str1);
+            curr = curr->next;
+        }
+    }
+
+    // 5. 创建并持久化 Commit 对象：
+    save_commit_to_disk(new_commit);
+
+    // 6. 更新分支指针 (master)
+    // 需要读取 HEAD 确定当前分支文件路径，再写入 new_commit->hash
+    unsigned char* head_file = read_file(".gitlet/HEAD");
+    char branch_path[256];
+    sprintf(branch_path,".gitlet/%s", (char*)head_file + 5);
+    write_file(branch_path,(unsigned char*)new_commit->hash,40);
+
+    // 6. 清空暂存区
+    free_staging_area(stage);
+    StagingArea* empty_stage = read_staging_area();
+    save_staging_area(empty_stage);
+    free_staging_area(empty_stage);
+
+    // 7. 内存清理
+    free_commit(head_commit);
+    free_commit(new_commit);
+    free(head_file);
+
+    return 0;
+}
+
+// 根据哈希值直接从磁盘加载读取并还原 Commit 对象
+Commit* get_commit_by_hash(const char* hash){
+    char path[256];
+    sprintf(path,".gitlet/objects/%s", hash);
+
+    unsigned char* buffer = read_file(path);
+    if (!buffer) return NULL;
+
+    Commit* commit = deserialize_commit(buffer);
+    // 注意：deserialize_commit 并没有填充 hash 字段，因为哈希是文件名
+    // 我们手动填入以便 log 打印
+    strncpy(commit->hash,hash,40);
+    commit->hash[40] = '\0';
+
+    free(buffer);
+    return commit;
+}
+
+// 将 timestamp 转换为 Git 风格的字符串
+void print_commit_details(Commit* commit){
+    struct tm* tm_info = localtime(&(commit->timestamp));
+    char time_buf[64];
+    // 格式：Thu Nov 9 17:01:33 2017 -0800
+    strftime(time_buf, sizeof(time_buf), "%a %b %d %H:%M:%S %Y %z", tm_info);
+
+    printf("===\n");
+    printf("commit %s\n", commit->hash);
+    printf("Date: %s\n", time_buf);
+    printf("%s\n\n", commit->message);
+}
+
+int cmd_log(){
+    
 }
 
