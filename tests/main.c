@@ -29,6 +29,8 @@ int main(int argc,char* argv[]) {
         cmd_rm(argv[2]);
     }else if (strcmp(cmd,"commit") == 0){
         cmd_commit(argv[2]);
+    }else if (strcmp(cmd,"log") == 0){
+        cmd_log();
     }else{
         printf("No command with that name exists.\n");
     }

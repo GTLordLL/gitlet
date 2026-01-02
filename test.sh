@@ -7,6 +7,8 @@ echo "--- 1. 测试 INIT ---"
 ./bin/gitlet init
 ls -a .gitlet  # 检查目录结构是否生成
 
+./bin/gitlet log
+
 echo -e "\n--- 2. 测试 ADD ---"
 echo "hello world" > a.txt
 echo "hello gitlet" > b.txt
@@ -16,6 +18,8 @@ echo "hello gitlet" > b.txt
 
 echo -e "\n--- 3. 测试 COMMIT 1 ---"
 ./bin/gitlet commit "First commit with a and b"
+
+./bin/gitlet log
 
 echo -e "\n--- 4. 测试 RM (从暂存区移除) ---"
 echo "new content" > c.txt
@@ -29,6 +33,8 @@ ls a.txt               # 应该显示文件已不存在
 
 echo -e "\n--- 6. 测试 COMMIT 2 (处理删除) ---"
 ./bin/gitlet commit "Second commit: removed a.txt"
+
+./bin/gitlet log
 
 echo -e "\n--- 7. 使用 Valgrind 进行最终压力测试 ---"
 valgrind --leak-check=full ./bin/gitlet add b.txt # 虽然没变化，但也走一遍逻辑

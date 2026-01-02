@@ -262,7 +262,53 @@ void print_commit_details(Commit* commit){
     printf("%s\n\n", commit->message);
 }
 
-int cmd_log(){
-    
+int cmd_log(void){
+    // 1. 获取 HEAD 的哈希（从 master 或其他分支文件读取）
+    unsigned char* head_raw = read_file(".gitlet/HEAD");
+    if (!head_raw) return -1;
+
+    char branch_path[256];
+    sprintf(branch_path,".gitlet/%s", (char*)head_raw + 5);
+
+    unsigned char* current_hash_raw = read_file(branch_path);
+    if (!current_hash_raw) {
+        free(head_raw);
+        return -1;
+    }
+
+    char current_hash[41];
+    memcpy(current_hash, current_hash_raw, 40);
+    current_hash[40] = '\0';
+
+    // 2. 沿着父链回溯
+    while (1){
+        Commit* commit = get_commit_by_hash(current_hash);
+        if (!commit) break;
+        
+        print_commit_details(commit);
+
+        // 检查是否有父提交
+        int has_parent = 0;
+        int i;
+        for (i = 0; i < 40; i++){
+            // 初始提交的 parent_hash 全为 '0'
+            if (commit->parent_hash[i] != '0'){
+                has_parent = 1;
+                break;
+            }
+        }
+
+        if (!has_parent){
+            free_commit(commit);
+            break;
+        }
+        
+        // 更新哈希为父哈希，继续循环
+        strcpy(current_hash,commit->parent_hash);
+        free_commit(commit);
+    }
+    free(head_raw);
+    free(current_hash_raw);
+    return 0;
 }
 

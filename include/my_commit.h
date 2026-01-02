@@ -22,5 +22,6 @@ void save_commit_to_disk(Commit* commit);
 void free_commit(Commit* commit);
 StringHashMap* clone_str_hashmap(StringHashMap* map);
 int cmd_commit(const char* message);
+int cmd_log(void);
 
 #endif

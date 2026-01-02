@@ -26,5 +26,5 @@ coverage/
 
 note.md
 .gitlet/*
-.gitlet/refs/heads/*
+.gitlet/refs/heads/master
 *.txt
