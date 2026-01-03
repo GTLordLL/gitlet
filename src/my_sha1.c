@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "my_sha1.h"
+#include "my_blob.h"
 
 // 将二进制哈希转换为 40 位 16 进制字符串
 char* sha1_to_hex(unsigned char* hash,unsigned int length){
@@ -44,4 +45,17 @@ char* calculate_data_sha1(const void* data,size_t length){
     EVP_MD_CTX_free(mdctx);
 
     return sha1_to_hex(hash,hash_len); // 记得在使用后 free 这个字符串
+}
+
+char* get_file_sha1(const char* filename){
+    // 1. 读取原始文件内容
+    unsigned char* buffer = read_file(filename);
+    if (!buffer) return NULL;
+
+    // 2. 计算 SHA-1
+    long file_size = get_file_size(filename);
+    char* hash_str = calculate_data_sha1(buffer,file_size);
+
+    free(buffer);
+    return hash_str;
 }

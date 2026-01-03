@@ -59,6 +59,8 @@ int main(int argc,char* argv[]) {
         cmd_branch(argv[2]);
     }else if (strcmp(cmd,"rm-branch") == 0){
         cmd_rm_branch(argv[2]);
+    }else if (strcmp(cmd,"reset") == 0){
+        cmd_reset(argv[2]);
     }else{
         printf("No command with that name exists.\n");
     }

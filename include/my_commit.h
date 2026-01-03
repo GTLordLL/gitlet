@@ -7,6 +7,7 @@
 
 typedef struct StringHashMap StringHashMap;
 
+#include <stddef.h>
 
 typedef struct Commit{
     char hash[41];            // 当前 Commit 的哈希
