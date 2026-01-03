@@ -7,6 +7,8 @@
 #include "my_status.h"
 #include "my_checkout.h"
 #include "my_branch.h"
+#include "my_log.h"
+
 
 /* 有参数版main函数
 ./gitlet commit "Initial message"
@@ -34,6 +36,10 @@ int main(int argc,char* argv[]) {
         cmd_commit(argv[2]);
     }else if (strcmp(cmd,"log") == 0){
         cmd_log();
+    }else if (strcmp(cmd,"global-log") == 0){
+        cmd_global_log();
+    }else if (strcmp(cmd,"find") == 0){
+        cmd_find(argv[2]);
     }else if (strcmp(cmd,"status") == 0){
         cmd_status();
     }else if (strcmp(cmd, "checkout") == 0) {
@@ -51,6 +57,8 @@ int main(int argc,char* argv[]) {
         }
     }else if (strcmp(cmd,"branch") == 0){
         cmd_branch(argv[2]);
+    }else if (strcmp(cmd,"rm-branch") == 0){
+        cmd_rm_branch(argv[2]);
     }else{
         printf("No command with that name exists.\n");
     }

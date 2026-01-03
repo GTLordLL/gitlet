@@ -14,8 +14,9 @@
 unsigned char* serialize_commit(Commit* commit,size_t* out_len){
     // 1. 初步预估大小 (不含 map 内部文件名长度)
     size_t msg_len = strlen(commit->message);
-    /* 设计二进制序列化协议
+    /* 设计二进制序列化协议（模拟 Git 格式）
     我们要把数据按以下顺序排列在内存缓冲区中：
+    Git 头部 "commit " (7字节)
     Parent Hash (40字节)
     Timestamp (8字节, long)
     Message Length (4字节, int)
@@ -23,31 +24,35 @@ unsigned char* serialize_commit(Commit* commit,size_t* out_len){
     Blobs Count (4字节, int, 记录有多少个文件映射)
     文件映射列表：循环写入 [文件名长度(4字节) + 文件名 + 文件哈希(40字节)]
     */
-    size_t estimated_size = 40 + 8 + 4 + msg_len + 4 + (commit->blobs->curSize * 100);
+    size_t estimated_size = 7 + 40 + 8 + 4 + msg_len + 4 + (commit->blobs->curSize * 100);
     unsigned char* buffer = (unsigned char*)malloc(estimated_size);
     unsigned char* p = buffer;
 
-    // 2. 写入 Parent Hash (40 bytes)
+    // 2. 写入 Git 头部 "commit " (7 bytes)
+    memcpy(p, "commit ", 7);
+    p += 7;
+
+    // 3. 写入 Parent Hash (40 bytes)
     memcpy(p,commit->parent_hash,40);
     p += 40;
 
-    // 3. 写入 Timestamp (8 bytes)
+    // 4. 写入 Timestamp (8 bytes)
     memcpy(p,&(commit->timestamp),8);
     p += 8;
 
-    // 4. 写入 Message
+    // 5. 写入 Message
     unsigned int m_len = (unsigned int)msg_len;
     memcpy(p,&m_len,4);
     p += 4;
     memcpy(p,commit->message,m_len);
     p += m_len;
 
-    // 5. 写入 Blobs 数量
+    // 6. 写入 Blobs 数量
     unsigned int map_size = (unsigned int)commit->blobs->curSize;
     memcpy(p, &map_size, 4);
     p += 4;
     unsigned int i;
-    // 6. 遍历 HashMap 写入文件映射
+    // 7. 遍历 HashMap 写入文件映射
     for (i = 0; i < commit->blobs->maxCapacity; i++){
         StringDLLNode* curr = commit->blobs->buckets[i]->sentinel->next;
         while (curr != commit->blobs->buckets[i]->sentinel){
@@ -74,16 +79,19 @@ Commit* deserialize_commit(unsigned char* buffer){
     Commit* old_commit = (Commit*)malloc(sizeof(Commit));
     unsigned char* p = buffer;
 
-    // 1. 读取 Parent Hash
+    // 1. 跳过 Git 头部 "commit " (7 bytes)
+    p += 7;
+
+    // 2. 读取 Parent Hash
     memcpy(old_commit->parent_hash,p,40);
     old_commit->parent_hash[40] = '\0';
     p += 40;
 
-    // 2. 读取 Timestamp
+    // 3. 读取 Timestamp
     memcpy(&(old_commit->timestamp),p,8);
     p += 8;
 
-    // 3. 读取 Message
+    // 4. 读取 Message
     unsigned int m_len;
     memcpy(&m_len,p,4);
     p += 4;
@@ -92,13 +100,13 @@ Commit* deserialize_commit(unsigned char* buffer){
     old_commit->message[m_len] = '\0';
     p += m_len;
 
-    // 4. 读取 Blobs 数量并初始化 HashMap
+    // 5. 读取 Blobs 数量并初始化 HashMap
     unsigned int map_size;
     memcpy(&map_size,p,4);
     p += 4;
     old_commit->blobs = create_StringHashMap(map_size > 0 ? map_size : 16);
 
-    // 5. 循环恢复文件映射
+    // 6. 循环恢复文件映射
     unsigned int i;
     for ( i = 0; i < map_size; i++){
         unsigned int name_len;
@@ -315,53 +323,5 @@ void print_commit_details(Commit* commit){
     printf("%s\n\n", commit->message);
 }
 
-int cmd_log(void){
-    // 1. 获取 HEAD 的哈希（从 master 或其他分支文件读取）
-    unsigned char* head_raw = read_file(".gitlet/HEAD");
-    if (!head_raw) return -1;
 
-    char branch_path[256];
-    sprintf(branch_path,".gitlet/%s", (char*)head_raw + 5);
-
-    unsigned char* current_hash_raw = read_file(branch_path);
-    if (!current_hash_raw) {
-        free(head_raw);
-        return -1;
-    }
-
-    char current_hash[41];
-    memcpy(current_hash, current_hash_raw, 40);
-    current_hash[40] = '\0';
-
-    // 2. 沿着父链回溯
-    while (1){
-        Commit* commit = get_commit_by_hash(current_hash);
-        if (!commit) break;
-        
-        print_commit_details(commit);
-
-        // 检查是否有父提交
-        int has_parent = 0;
-        int i;
-        for (i = 0; i < 40; i++){
-            // 初始提交的 parent_hash 全为 '0'
-            if (commit->parent_hash[i] != '0'){
-                has_parent = 1;
-                break;
-            }
-        }
-
-        if (!has_parent){
-            free_commit(commit);
-            break;
-        }
-        
-        // 更新哈希为父哈希，继续循环
-        strcpy(current_hash,commit->parent_hash);
-        free_commit(commit);
-    }
-    free(head_raw);
-    free(current_hash_raw);
-    return 0;
-}
 

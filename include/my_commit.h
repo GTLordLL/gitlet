@@ -24,6 +24,6 @@ void free_commit(Commit* commit);
 Commit* get_commit_by_hash(const char* hash);
 StringHashMap* clone_str_hashmap(StringHashMap* map);
 int cmd_commit(const char* message);
-int cmd_log(void);
+void print_commit_details(Commit* commit);
 
 #endif
