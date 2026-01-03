@@ -9,50 +9,6 @@
 #include "my_blob.h"
 #include "my_sha1.h"
 
-Commit* get_head_commit(void){
-    // 1. 读取 .gitlet/HEAD 得到 "ref: refs/heads/master"
-    unsigned char* HEAD_buffer = read_file(".gitlet/HEAD");
-    if (!HEAD_buffer) {
-        printf(".gitlet/HEAD无法打开\n");
-        return NULL;
-    }
-    // 解析 "ref: refs/heads/master" -> 提取 "refs/heads/master"
-    char* ref_path_part = (char*)HEAD_buffer + 5; // 跳过 "ref: "
-    char full_ref_path[256];
-    sprintf(full_ref_path,".gitlet/%s",ref_path_part);
-
-    // 2. 提取路径 ".gitlet/refs/heads/master" 并读取得到 Commit 哈希
-    unsigned char* master_buffer = read_file(full_ref_path);
-    if (!master_buffer){
-        printf(".gitlet/refs/heads/master无法打开\n");
-        free(HEAD_buffer);
-        return NULL;
-    }
-    
-    char commit_hash[41];
-    memcpy(commit_hash,master_buffer,40);
-    commit_hash[40] = '\0';
-
-    // 3. 根据哈希到 .gitlet/objects/ 下读取二进制文件
-    char objects_path[256];
-    sprintf(objects_path,".gitlet/objects/%s",commit_hash);
-    unsigned char* commit_data = read_file(objects_path);
-    if (!commit_data){
-        printf(".gitlet/objects/%s无法打开\n",commit_hash);
-        free(HEAD_buffer);
-        free(master_buffer);
-        return NULL;
-    }
-
-    // 4. 反序列化并清理内存
-    Commit* head_commit = deserialize_commit(commit_data);
-
-    free(HEAD_buffer);
-    free(master_buffer);
-    free(commit_data);
-
-    return head_commit;
-}
 
 // 将StringHashMap序列化为字节流buffer
 unsigned char* serialize_map(StringHashMap* map,unsigned char* map_buffer){

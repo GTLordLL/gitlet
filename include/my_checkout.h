@@ -4,7 +4,7 @@
 
 int cmd_checkout_file(const char* filename);
 int cmd_checkout_commit_file(const char* commit_id, const char* filename);
-
+int cmd_checkout_branch(const char* branch_name);
 
 
 #endif

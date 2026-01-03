@@ -6,6 +6,7 @@
 #include "my_commit.h"
 #include "my_status.h"
 #include "my_checkout.h"
+#include "my_branch.h"
 
 /* 有参数版main函数
 ./gitlet commit "Initial message"
@@ -38,7 +39,7 @@ int main(int argc,char* argv[]) {
     }else if (strcmp(cmd, "checkout") == 0) {
         if (argc == 3) {
             // 情况 3: checkout [branch]
-            //cmd_checkout_branch(argv[2]);
+            cmd_checkout_branch(argv[2]);
         } else if (argc == 4 && strcmp(argv[2], "--") == 0) {
             // 情况 1: checkout -- [file]
             cmd_checkout_file(argv[3]);
@@ -48,6 +49,8 @@ int main(int argc,char* argv[]) {
         } else {
             printf("Incorrect operands.\n");
         }
+    }else if (strcmp(cmd,"branch") == 0){
+        cmd_branch(argv[2]);
     }else{
         printf("No command with that name exists.\n");
     }

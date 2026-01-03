@@ -25,6 +25,5 @@ coverage/
 *.gcno
 
 note.md
-.gitlet/*
-.gitlet/refs/heads/master
+.gitlet/
 *.txt

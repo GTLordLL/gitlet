@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <string.h>
 #include "my_checkout.h"
 #include "my_commit.h"
-#include "my_stage.h"
 #include "my_str_hashmap.h"
 #include "my_blob.h"
+#include "my_str_DLList.h"
 
 // 用法 1: 从 HEAD 恢复单个文件
 int cmd_checkout_file(const char* filename){
@@ -69,5 +70,119 @@ int cmd_checkout_commit_file(const char* commit_id, const char* filename){
 
 // 辅助函数：判断文件是否属于当前工作目录的“受管理文件”
 // 排除 .gitlet 目录、可执行文件、脚本等（在 Gitlet 实验中通常只关心 a.txt 等普通文件）
+int is_regular_file(const char* filename){
+    if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0) return 0;
+    if (strcmp(filename, "bin") == 0 || strcmp(filename, ".gitlet") == 0) return 0;
+    // 你可以根据需要增加排除项，比如 test.sh, Makefile 等
+    if (strstr(filename, ".sh") || strcmp(filename, "Makefile") == 0) return 0;
+    return 1;
+}
 
+// 用法 3: 切换到另一个分支，并将整个工作目录更新为该分支最新提交的状态。
+int cmd_checkout_branch(const char* branch_name){
+    // 1. 检查分支文件是否存在
+    char target_branch_path[256];
+    sprintf(target_branch_path, ".gitlet/refs/heads/%s", branch_name);
+    if (access(target_branch_path, F_OK) != 0) {
+        printf("No such branch exists.\n");
+        return -1;
+    }
+
+    // 2. 检查是否已经是当前分支
+    unsigned char* head_content = read_file(".gitlet/HEAD");
+    char current_branch_ref[256];
+    sprintf(current_branch_ref, "ref: refs/heads/%s", branch_name);
+    if (strcmp((char*)head_content, current_branch_ref) == 0) {
+        printf("No need to checkout the current branch.\n");
+        free(head_content);
+        return -1;
+    }
+    free(head_content);
+
+    // 3. 获取 HEAD 提交和目标分支提交
+    Commit* current_commit = get_head_commit();
+    if (!current_commit){
+        printf("无法获取当前head提交\n");
+        return -1;
+    }
+    
+
+    unsigned char* target_hash_raw = read_file(target_branch_path);
+    char target_hash[41];
+    memcpy(target_hash, target_hash_raw, 40);
+    target_hash[40] = '\0';
+    free(target_hash_raw);
+    Commit* target_commit = get_commit_by_hash(target_hash);
+    if (target_commit == NULL) {
+        printf("No commit with that id exists.\n");
+        free_commit(current_commit);
+        // 做一些清理工作，比如 closedir(directory);
+        return -1;
+    }
+
+    // 4. 安全性检查：是否存在会被覆盖的 Untracked 文件
+    DIR* d = opendir(".");
+    struct dirent* dir;
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
+            if (is_regular_file(dir->d_name)) {
+                // 如果文件在工作区，但不在当前 Commit 中（Untracked）
+                if (get_str_value(current_commit->blobs, dir->d_name) == NULL) {
+                    // 且该文件在目标分支提交中存在
+                    if (get_str_value(target_commit->blobs, dir->d_name) != NULL) {
+                        // 必须报错并退出，因为直接切换会把这个未追踪的文件覆盖掉。
+                        printf("There is an untracked file in the way; delete it, or add and commit it first.\n");
+                        closedir(d);
+                        free_commit(current_commit);
+                        free_commit(target_commit);
+                        return -1;
+                    }
+                }
+            }
+        }
+        closedir(d);
+    }
+
+    // 5. 更新工作目录：覆盖或新增目标分支的文件
+    // 遍历 target_commit 的 blobs
+    unsigned int i;
+    for (i = 0; i < target_commit->blobs->maxCapacity; i++) {
+        StringDLLNode* curr = target_commit->blobs->buckets[i]->sentinel->next;
+        while (curr != target_commit->blobs->buckets[i]->sentinel) {
+            char* filename = curr->str1;
+            char* blob_hash = curr->str2;
+            
+            char obj_path[256];
+            sprintf(obj_path, ".gitlet/objects/%s", blob_hash);
+            unsigned char* content = read_file(obj_path);
+            long size = get_file_size(obj_path);
+            write_file(filename, content, size);
+            free(content);
+            
+            curr = curr->next;
+        }
+    }
+
+    // 6. 删除在当前分支有，但在目标分支没有的文件
+    for (i = 0; i < current_commit->blobs->maxCapacity; i++) {
+        StringDLLNode* curr = current_commit->blobs->buckets[i]->sentinel->next;
+        while (curr != current_commit->blobs->buckets[i]->sentinel) {
+            char* filename = curr->str1;
+            if (get_str_value(target_commit->blobs, filename) == NULL) {
+                unlink(filename); // 从物理磁盘删除
+            }
+            curr = curr->next;
+        }
+    }
+
+    // 7. 更新 HEAD 指针
+    write_file(".gitlet/HEAD", (unsigned char*)current_branch_ref, strlen(current_branch_ref));
+
+    // 8. 清空暂存区
+    unlink(".gitlet/index");
+
+    free_commit(current_commit);
+    free_commit(target_commit);
+    return 0;
+}
 
