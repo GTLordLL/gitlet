@@ -20,6 +20,7 @@ unsigned char* serialize_commit(Commit* commit,size_t* out_len);
 Commit* deserialize_commit(unsigned char* buffer);
 void save_commit_to_disk(Commit* commit);
 void free_commit(Commit* commit);
+Commit* get_commit_by_hash(const char* hash);
 StringHashMap* clone_str_hashmap(StringHashMap* map);
 int cmd_commit(const char* message);
 int cmd_log(void);

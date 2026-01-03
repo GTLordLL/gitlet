@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include "my_commit.h"
 #include "my_str_hashmap.h"
 #include "my_str_DLList.h"
@@ -138,6 +139,8 @@ void save_commit_to_disk(Commit* commit){
     // 写入文件
     write_file(path,buffer,len);
 
+    printf("Commit saved: %s\n", commit_hash);
+
     free(buffer);
     free(commit_hash);
 }
@@ -222,6 +225,7 @@ int cmd_commit(const char* message){
     StagingArea* empty_stage = create_StagingArea(16);
     save_staging_area(empty_stage);
     free_staging_area(empty_stage);
+    unlink(".gitlet/index"); // 简单做法：直接物理删除暂存区文件
 
     // 7. 内存清理
     free_commit(head_commit);

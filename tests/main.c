@@ -5,6 +5,7 @@
 #include "my_stage.h"
 #include "my_commit.h"
 #include "my_status.h"
+#include "my_checkout.h"
 
 /* 有参数版main函数
 ./gitlet commit "Initial message"
@@ -34,6 +35,19 @@ int main(int argc,char* argv[]) {
         cmd_log();
     }else if (strcmp(cmd,"status") == 0){
         cmd_status();
+    }else if (strcmp(cmd, "checkout") == 0) {
+        if (argc == 3) {
+            // 情况 3: checkout [branch]
+            //cmd_checkout_branch(argv[2]);
+        } else if (argc == 4 && strcmp(argv[2], "--") == 0) {
+            // 情况 1: checkout -- [file]
+            cmd_checkout_file(argv[3]);
+        } else if (argc == 5 && strcmp(argv[3], "--") == 0) {
+            // 情况 2: checkout [id] -- [file]
+            cmd_checkout_commit_file(argv[2], argv[4]);
+        } else {
+            printf("Incorrect operands.\n");
+        }
     }else{
         printf("No command with that name exists.\n");
     }
